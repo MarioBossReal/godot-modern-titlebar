@@ -52,7 +52,11 @@ public static class WindowStyler
             var hwnd = (IntPtr)DisplayServer.WindowGetNativeHandle(DisplayServer.HandleType.WindowHandle, window);
             if (hwnd == IntPtr.Zero)
                 continue;
-
+            
+            var popup = DisplayServer.WindowGetFlag(DisplayServer.WindowFlags.Popup, window);
+            if (popup)
+                continue;
+            
             _ = DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR, ref captionColor, sizeof(uint));
             _ = DwmSetWindowAttribute(hwnd, DWMWA_TEXT_COLOR, ref textColor, sizeof(uint));
         }
@@ -73,7 +77,11 @@ public static class WindowStyler
 
             if (hwnd == IntPtr.Zero)
                 continue;
-
+            
+            var popup = DisplayServer.WindowGetFlag(DisplayServer.WindowFlags.Popup, window);
+            if (popup)
+                continue;
+            
             _ = DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR, ref captionColor, sizeof(uint));
             _ = DwmSetWindowAttribute(hwnd, DWMWA_TEXT_COLOR, ref captionColor, sizeof(uint));
         }
@@ -81,5 +89,6 @@ public static class WindowStyler
 }
 
 #pragma warning restore SYSLIB1054
+
 
 #endif
