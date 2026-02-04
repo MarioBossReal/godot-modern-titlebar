@@ -491,7 +491,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 	{
         EditorBaseControl.RemoveThemeFontSizeOverride(FONT_SIZE);
 
-        var children = EditorMenuBar.FindChildren("*", "PopupMenu", true, false);
+        var children = EditorBaseControl.FindChildren("*", "PopupMenu", true, false);
 
         foreach (var child in children)
         {
