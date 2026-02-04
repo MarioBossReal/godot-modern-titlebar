@@ -248,6 +248,21 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		WindowCloser.RequestCloseMainEditorWindow();
     }
 
+	void OnEditorSceneButtonChildEnteredTree(Node child)
+	{
+		// Support editor plugins that implement main screens
+
+		if (child is not Button button)
+			return;
+
+		if (button.HasMeta(META_BUTTON_TEXT))
+			return;
+
+		var text = button.Text;
+		button.SetMeta(META_BUTTON_TEXT, text);
+		button.Text = string.Empty;
+	}
+
 	void OnDragGuiInput(InputEvent @event)
 	{
         if (@event is not InputEventMouseButton mouse)
@@ -278,12 +293,16 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
             var text = button.Text;
             button.SetMeta(META_BUTTON_TEXT, text);
             button.Text = string.Empty;
-        }	
+        }
+
+		EditorMainScreenButtons.ChildEnteredTree += OnEditorSceneButtonChildEnteredTree;
 	}
 
 	void RevertMainScreenButtonsChanges()
 	{
-		// Move the main screen buttons back to the editor titlebar and restore their text
+        EditorMainScreenButtons.ChildEnteredTree -= OnEditorSceneButtonChildEnteredTree;
+
+        // Move the main screen buttons back to the editor titlebar and restore their text
 
         EditorSceneTabsHBox.RemoveChild(EditorMainScreenButtons);
         EditorTitleBar.AddChild(EditorMainScreenButtons);
@@ -434,6 +453,8 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		DragButton.ButtonDown -= OnDragPressed;
 		DragButton.GuiInput -= OnDragGuiInput;
 
+        EditorMainScreenButtons.ChildEnteredTree -= OnEditorSceneButtonChildEnteredTree;
+
         SetMeta(META_ORIGINAL_PROC, WindowFrameRemover.OriginalProc);
         SetMeta(META_ORIGINAL_STYLE, WindowFrameRemover.OriginalStyle);
 		
@@ -448,6 +469,8 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		EditorWindow.SizeChanged += OnWindowSizeChanged;
 		DragButton.ButtonDown += OnDragPressed;
 		DragButton.GuiInput += OnDragGuiInput;
+
+        EditorMainScreenButtons.ChildEnteredTree += OnEditorSceneButtonChildEnteredTree;
 
         var proc = (nint)GetMeta(META_ORIGINAL_PROC, 0).As<long>();
 		var style = GetMeta(META_ORIGINAL_STYLE, 0).As<long>();
