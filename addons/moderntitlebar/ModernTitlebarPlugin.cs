@@ -2,7 +2,6 @@
 using Godot;
 using System;
 using System.IO;
-using System.Runtime.Loader;
 
 namespace ModernTitlebar;
 
