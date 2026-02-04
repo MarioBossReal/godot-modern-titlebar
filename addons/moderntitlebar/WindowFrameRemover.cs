@@ -171,6 +171,15 @@ public static class WindowFrameRemover
         if (msg == WM_NCCALCSIZE && wParam != 0 && lParam != 0)
         {
             var r = Marshal.PtrToStructure<RECT>(lParam);
+
+            if (DisplayServer.WindowGetMode(0) == DisplayServer.WindowMode.Maximized)
+            {
+                r.left += 8;
+                r.bottom -= 8;
+                r.right -= 8;
+                r.top += 8;
+            }
+
             Marshal.StructureToPtr(r, lParam, false);
             return 0;
         }
