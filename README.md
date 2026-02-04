@@ -1,7 +1,9 @@
 # Godot Modern Titlebar
-A modern titlebar redesign for Godot 4.6 written in C# for Windows 11
+A modern titlebar redesign for Godot 4.6 written in C# for Windows 11 and 10
 
-This is only a prototype, and currently only supports Windows.
+This is only a prototype, and currently only supports Windows 11 and 10.
+It is being developed mainly for Windows 11, however it has been tested on Windows 10 and works well except
+that it removes the native 1px window border.
 
 For this prototype, the main editor window has the native titlebar removed, and the window buttons (minimise, maximise, close)
 are recreated accurately using control nodes.
