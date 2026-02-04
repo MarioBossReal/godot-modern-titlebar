@@ -170,6 +170,8 @@ public static class WindowFrameRemover
         // Remove non-client area
         if (msg == WM_NCCALCSIZE && wParam != 0 && lParam != 0)
         {
+            var r = Marshal.PtrToStructure<RECT>(lParam);
+            Marshal.StructureToPtr(r, lParam, false);
             return 0;
         }
 
