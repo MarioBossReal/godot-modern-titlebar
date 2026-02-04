@@ -37,7 +37,7 @@ public static class WindowStyler
     /// </summary>
     /// <param name="caption"></param>
     /// <param name="text"></param>
-    public static void ApplyTitlebarColors(Color caption, Color text)
+    public static void ApplyTitlebarColors(Color caption, Color text, bool skipMainWindow = false)
     {
         if (!OperatingSystem.IsWindows())
             return;
@@ -49,12 +49,23 @@ public static class WindowStyler
 
         foreach (var window in windows)
         {
+            if (window == 0 && skipMainWindow)
+                continue;
+
             var hwnd = (IntPtr)DisplayServer.WindowGetNativeHandle(DisplayServer.HandleType.WindowHandle, window);
             if (hwnd == IntPtr.Zero)
                 continue;
             
             var popup = DisplayServer.WindowGetFlag(DisplayServer.WindowFlags.Popup, window);
             if (popup)
+                continue;
+
+            var nofocus = DisplayServer.WindowGetFlag(DisplayServer.WindowFlags.NoFocus, window);
+            if (nofocus)
+                continue;
+
+            var borderless = DisplayServer.WindowGetFlag(DisplayServer.WindowFlags.Borderless, window);
+            if (borderless)
                 continue;
             
             _ = DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR, ref captionColor, sizeof(uint));

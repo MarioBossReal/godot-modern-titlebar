@@ -187,7 +187,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 			return;
 
 		// Force apply native titlebar colours for editor subwindows
-        ApplyTitlebarColors();
+        ApplyTitlebarColors(true);
 
 		// Force apply panel styling if the theme changes
         var stylebox = EditorRunBarPanel.GetThemeStylebox(PANEL);
@@ -197,11 +197,11 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		}
     }
 
-	void ApplyTitlebarColors()
+	void ApplyTitlebarColors(bool skipMainWindow = false)
 	{
         var titleColor = GetBackgroundColor();
         var textColor = GetTextColor();
-        WindowStyler.ApplyTitlebarColors(titleColor, textColor);
+        WindowStyler.ApplyTitlebarColors(titleColor, textColor, skipMainWindow);
     }
 
 	void OnWindowSizeChanged()
