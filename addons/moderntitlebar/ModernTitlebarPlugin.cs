@@ -66,7 +66,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
     Control.SizeFlags MenuBarSizeFlagsV;
     Control.SizeFlags RunBarSizeFlagsV;
 
-    public override void _EnterTree()
+    public override void _EnablePlugin()
 	{
 		if (!OperatingSystem.IsWindows())
 			return;
@@ -162,7 +162,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		OnWindowSizeChanged();
     }
 
-	public override void _ExitTree()
+	public override void _DisablePlugin()
 	{
 		if (!OperatingSystem.IsWindows())
 			return;
