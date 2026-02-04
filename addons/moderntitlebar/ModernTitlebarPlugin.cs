@@ -87,6 +87,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		RunBarRoot = ModernTitlebar.GetNode("%RunBarRoot") as Control;
 		DragButton = ModernTitlebar.GetNode("%Drag") as Button;
 		DragButton.ButtonDown += OnDragPressed;
+		DragButton.GuiInput += OnDragGuiInput;
 
 		// Setup window buttons
 		var buttonsPrefab = ResourceLoader.Load<PackedScene>($"{AddonRoot}/window_buttons.scn");
@@ -237,10 +238,28 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		else
             EditorWindow.Mode = Window.ModeEnum.Maximized;
 	}
+    void OnDragPressed()
+    {
+        EditorWindow.StartDrag();
+    }
 
-	void OnClosePressed()
+    void OnClosePressed()
 	{
 		WindowCloser.RequestCloseMainEditorWindow();
+    }
+
+	void OnDragGuiInput(InputEvent @event)
+	{
+        if (@event is not InputEventMouseButton mouse)
+            return;
+
+        if (mouse.ButtonIndex != MouseButton.Right)
+            return;
+
+        if (!mouse.Pressed)
+            return;
+
+        WindowContextMenu.ShowForMainEditorWindow();
     }
 
 	void ApplyMainScreenButtonsChanges()
@@ -376,11 +395,6 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
         WindowButtons.AddThemeConstantOverride(MARGIN_BOTTOM, b);
     }
 
-	void OnDragPressed()
-	{
-		EditorWindow.StartDrag();
-	}
-
     Color GetBackgroundColor()
     {
         var stylebox = EditorBaseControl.GetThemeStylebox(PANEL);
@@ -418,6 +432,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
         CloseButton.Pressed -= OnClosePressed;
 		EditorWindow.SizeChanged -= OnWindowSizeChanged;
 		DragButton.ButtonDown -= OnDragPressed;
+		DragButton.GuiInput -= OnDragGuiInput;
 
         SetMeta(META_ORIGINAL_PROC, WindowFrameRemover.OriginalProc);
         SetMeta(META_ORIGINAL_STYLE, WindowFrameRemover.OriginalStyle);
@@ -432,6 +447,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
         CloseButton.Pressed += OnClosePressed;
 		EditorWindow.SizeChanged += OnWindowSizeChanged;
 		DragButton.ButtonDown += OnDragPressed;
+		DragButton.GuiInput += OnDragGuiInput;
 
         var proc = (nint)GetMeta(META_ORIGINAL_PROC, 0).As<long>();
 		var style = GetMeta(META_ORIGINAL_STYLE, 0).As<long>();
