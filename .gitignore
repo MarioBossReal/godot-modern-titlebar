@@ -1,35 +1,9 @@
-# Godot 4+ specific ignores
-.godot/
-.nomedia
-
-# Godot-specific ignores
-.import/
-export.cfg
-export_credentials.cfg
-*.tmp
-.editorconfig
-*.uid
-
-project.godot
-icon.svg
-icon.svg.import
-
-# Imported translations (automatically generated from CSV files)
-*.translation
-
-# Mono-specific ignores
-.mono/
-data_*/
-mono_crash.*.json
-*.sln
-*.csproj
-
-#VS
-.vs/
-
 # Ignore everything except addon
+
+*
+
 !/addons/moderntitlebar/
 !/addons/moderntitlebar/**/*
 /addons/moderntitlebar/*.uid
-Test.cs
+
 
