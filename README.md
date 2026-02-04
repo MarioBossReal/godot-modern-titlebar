@@ -8,7 +8,7 @@ are recreated accurately using control nodes.
 
 In the future, I want to test out how well Godot reacts to extending the client area into the non-client area.
 If it reacts well, then the native titlebar can be used and the window buttons won't have to be recreated, which would be ideal for
-preserving more native system functions and woudld pave the way for allowing non-client drawing in the editor for other operating systems.
+preserving more native system functions and would pave the way for allowing non-client drawing in the editor for other operating systems.
 
 <img width="1971" height="1192" alt="image" src="https://github.com/user-attachments/assets/9e527c2a-c090-4c97-ba2b-3bf75459f070" />
 
