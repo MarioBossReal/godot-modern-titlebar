@@ -67,6 +67,10 @@ public static class WindowStyler
             var borderless = DisplayServer.WindowGetFlag(DisplayServer.WindowFlags.Borderless, window);
             if (borderless)
                 continue;
+
+            var transparent = DisplayServer.WindowGetFlag(DisplayServer.WindowFlags.Transparent, window);
+            if (transparent)
+                continue;
             
             _ = DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR, ref captionColor, sizeof(uint));
             _ = DwmSetWindowAttribute(hwnd, DWMWA_TEXT_COLOR, ref textColor, sizeof(uint));

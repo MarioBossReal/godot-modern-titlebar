@@ -35,6 +35,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 	// SIZE / SCALE
     Vector2 WindowButtonSize { get; set; }
     float ScreenScale { get; set; }
+	Color BackgroundColor { get; set; }
 
     // PLUGIN CONTROLS
     MarginContainer ModernTitlebar { get; set; }
@@ -50,7 +51,6 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 
 	// A workaround to the fact that the EditorMainScreen's functionality depends extremely heavily on the buttons' names
 	FontFile BlankFont { get; set; }
-
 
     // EDITOR CONTROLS
     Window EditorWindow { get; set; }
@@ -84,7 +84,6 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 
         // Windows DPI is 96 at 100% scaling
         ScreenScale = DisplayServer.ScreenGetDpi() / 96f;
-
 		BlankFont = ResourceLoader.Load<FontFile>($"{AddonRoot}/AdobeBlank.ttf");
 
         // Setup titlebar
@@ -153,8 +152,10 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		EditorBaseControl.AddChild(WindowButtons);
 		EditorBaseControl.MoveChild(WindowButtons, 1);
 
-		// Apply changes to editor controls
-		ApplyMainScreenButtonsChanges();
+        BackgroundColor = GetBackgroundColor();
+
+        // Apply changes to editor controls
+        ApplyMainScreenButtonsChanges();
 		ApplyEditorRunBarChanges();
 		ApplyEditorMenuBarChanges();
 
@@ -208,6 +209,15 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		if (stylebox is StyleBoxEmpty empty && empty.ContentMarginTop != 0)
 		{
 			ApplyEditorRunBarPanelStyling();
+		}
+
+
+		var backgroundColor = GetBackgroundColor();
+		if (backgroundColor != BackgroundColor)
+		{
+			BackgroundColor = backgroundColor;
+			RevertEditorPopupMenuStyleChanges();
+			ApplyEditorPopupMenuStyleChanges();
 		}
     }
 
@@ -393,8 +403,10 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		EditorMenuBar.SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin;
 		EditorMenuBar.SizeFlagsVertical = Control.SizeFlags.Fill;
 
-		var fontSize = ScaleInt(12);
+        var fontSize = ScaleInt(12);
         EditorMenuBar.AddThemeFontSizeOverride(FONT_SIZE, fontSize);
+
+        ApplyEditorPopupMenuStyleChanges();
     }
 
 	void RevertEditorMenuBarChanges()
@@ -407,6 +419,90 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		EditorMenuBar.SizeFlagsHorizontal = MenuBarSizeFlagsH;
 		EditorMenuBar.SizeFlagsVertical = MenuBarSizeFlagsV;
         EditorMenuBar.RemoveThemeFontSizeOverride(FONT_SIZE);
+
+        RevertEditorPopupMenuStyleChanges();
+    }
+
+	void ApplyEditorPopupMenuStyleChanges()
+	{
+        var fontSize = ScaleInt(12);
+
+        var hoverStyleBox = EditorMenuBar.GetThemeStylebox("normal", EDITOR).Duplicate() as StyleBoxFlat;
+
+		var radius = ScaleInt(4);
+
+		hoverStyleBox.CornerRadiusBottomLeft = radius;
+		hoverStyleBox.CornerRadiusTopLeft = radius;
+		hoverStyleBox.CornerRadiusBottomRight = radius;
+		hoverStyleBox.CornerRadiusTopRight = radius;
+		hoverStyleBox.CornerDetail = 8;
+		hoverStyleBox.BorderWidthBottom = 0;
+		hoverStyleBox.BorderWidthTop = 0;
+		hoverStyleBox.BorderWidthLeft = 0;
+		hoverStyleBox.BorderWidthRight = 0;
+		hoverStyleBox.DrawCenter = true;
+		hoverStyleBox.BgColor = GetPopupPanelColor();
+
+		var normalStyleBox = hoverStyleBox.Duplicate() as StyleBoxFlat;
+		normalStyleBox.DrawCenter = false;
+
+		var selectedStyleBox = hoverStyleBox.Duplicate() as StyleBoxFlat;
+		selectedStyleBox.CornerRadiusBottomLeft = 0;
+		selectedStyleBox.CornerRadiusBottomRight = 0;
+
+        EditorMenuBar.AddThemeStyleboxOverride("normal", normalStyleBox);
+        EditorMenuBar.AddThemeStyleboxOverride("hover", hoverStyleBox);
+		EditorMenuBar.AddThemeStyleboxOverride("pressed", selectedStyleBox);
+		EditorMenuBar.AddThemeStyleboxOverride("hover_pressed", selectedStyleBox);
+
+		var popupPanelStyle = new StyleBoxFlat();
+		var contentMargin = ScaleInt(4);
+		popupPanelStyle.ContentMarginBottom = contentMargin;
+		popupPanelStyle.ContentMarginTop = contentMargin;
+		popupPanelStyle.ContentMarginLeft = contentMargin;
+		popupPanelStyle.ContentMarginRight = contentMargin;
+		popupPanelStyle.BgColor = hoverStyleBox.BgColor;
+
+		var separatorStyle = new StyleBoxFlat();
+		separatorStyle.BgColor = Colors.Transparent;
+		var separatorColor = GetTextColor();
+		separatorColor.A = 0.098f;
+		separatorStyle.BorderColor = separatorColor;
+		separatorStyle.BorderWidthTop = ScaleInt(1);
+
+
+		var children = EditorBaseControl.FindChildren("*", "PopupMenu", true, false);
+
+
+		foreach (var child in children)
+		{
+			if (child is not PopupMenu menu)
+				continue;
+
+			menu.AddThemeConstantOverride("v_separation", fontSize);
+			menu.AddThemeFontSizeOverride(FONT_SIZE, fontSize);
+			menu.AddThemeStyleboxOverride(PANEL, popupPanelStyle);
+			menu.AddThemeStyleboxOverride("separator", separatorStyle);
+		}
+
+    }
+
+	void RevertEditorPopupMenuStyleChanges()
+	{
+        EditorBaseControl.RemoveThemeFontSizeOverride(FONT_SIZE);
+
+        var children = EditorMenuBar.FindChildren("*", "PopupMenu", true, false);
+
+        foreach (var child in children)
+        {
+            if (child is not PopupMenu menu)
+                continue;
+
+            menu.RemoveThemeConstantOverride("v_separation");
+            menu.RemoveThemeFontSizeOverride(FONT_SIZE);
+            menu.RemoveThemeStyleboxOverride(PANEL);
+            menu.RemoveThemeStyleboxOverride("separator");
+        }
     }
 
 	void SetTitlebarMargins(int l, int r, int t, int b)
@@ -444,6 +540,12 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
     {
         return EditorBaseControl.GetThemeColor(FONT_COLOR, EDITOR);
     }
+
+	Color GetPopupPanelColor()
+	{
+		var textColor = GetTextColor();
+		return textColor.Luminance > 0.5f ? BackgroundColor.Lightened(0.035f) : BackgroundColor.Darkened(0.15f);
+	}
 
 	float ScaleFloat(float value)
 	{
