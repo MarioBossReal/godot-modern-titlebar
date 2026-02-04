@@ -6,7 +6,9 @@
 !/addons/moderntitlebar/**/*
 /addons/moderntitlebar/*.uid
 
+
 !.gitignore
 !README.md
 
+!/addons/moderntitlebar/AdobeBlank.ttf
 

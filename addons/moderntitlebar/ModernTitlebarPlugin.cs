@@ -17,13 +17,13 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
     const string RestoreIcon = "\uE923";
     
 	// META
-	static readonly StringName META_BUTTON_TEXT = "button_text";
 	static readonly StringName META_ORIGINAL_PROC = "original_proc";
 	static readonly StringName META_ORIGINAL_STYLE= "original_style";
 
 	// THEME OVERRIDES
     static readonly StringName EDITOR = "Editor";
     static readonly StringName PANEL = "panel";
+    static readonly StringName FONT = "font";
     static readonly StringName FONT_COLOR = "font_color";
     static readonly StringName FONT_SIZE = "font_size";
     static readonly StringName MARGIN_LEFT = "margin_left";
@@ -48,8 +48,13 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
     Button CloseButton { get; set; }
 	MarginContainer IconPadding { get; set; }
 
+	// A workaround to the fact that the EditorMainScreen's functionality depends extremely heavily on the buttons' names
+	FontFile BlankFont { get; set; }
+
+
     // EDITOR CONTROLS
     Window EditorWindow { get; set; }
+	Node EditorNode { get; set; }
 	VBoxContainer EditorMainVBox { get; set; }
     Panel EditorBaseControl { get; set; }
     Control EditorTitleBar { get; set; }
@@ -77,8 +82,10 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 			.Replace("res:\\", "res://")
 			.Replace('\\', '/');
 
-		// Windows DPI is 96 at 100% scaling
+        // Windows DPI is 96 at 100% scaling
         ScreenScale = DisplayServer.ScreenGetDpi() / 96f;
+
+		BlankFont = ResourceLoader.Load<FontFile>($"{AddonRoot}/AdobeBlank.ttf");
 
         // Setup titlebar
         var titleBarPrefab = ResourceLoader.Load<PackedScene>($"{AddonRoot}/modern_titlebar.scn");
@@ -120,6 +127,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 
         // Get handles to editor control nodes
         EditorWindow = GetTree().Root;
+		EditorNode = EditorWindow.GetChild(0);
 		EditorBaseControl = EditorInterface.Singleton.GetBaseControl() as Panel;
 		EditorMainVBox = EditorBaseControl.GetChild(0) as VBoxContainer;
 		EditorTitleBar = EditorBaseControl.FindChild("*EditorTitleBar*", true, false) as Control;
@@ -161,6 +169,11 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 
 		// Update
 		OnWindowSizeChanged();
+
+		// Make sure titlebar visible
+		var pos = DisplayServer.WindowGetPosition(0);
+		pos.Y = Mathf.Max(pos.Y, 0);
+		DisplayServer.WindowSetPosition(pos);
     }
 
 	public override void _DisablePlugin()
@@ -250,17 +263,13 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 
 	void OnEditorSceneButtonChildEnteredTree(Node child)
 	{
-		// Support editor plugins that implement main screens
-
+		// Support editor plugins that implement main screens that are enabled after this plugin
 		if (child is not Button button)
 			return;
 
-		if (button.HasMeta(META_BUTTON_TEXT))
-			return;
-
-		var text = button.Text;
-		button.SetMeta(META_BUTTON_TEXT, text);
-		button.Text = string.Empty;
+		button.AddThemeFontSizeOverride(FONT_SIZE, 1);
+		button.AddThemeFontOverride(FONT, BlankFont);
+		button.IconAlignment = HorizontalAlignment.Center;
 	}
 
 	void OnDragGuiInput(InputEvent @event)
@@ -279,7 +288,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 
 	void ApplyMainScreenButtonsChanges()
 	{
-		// Move the main screen buttons to the editor scene tabs control and remove their text
+		// Move the main screen buttons to the editor scene tabs control and hide their text
 
 		EditorTitleBar.RemoveChild(EditorMainScreenButtons);
 		EditorSceneTabsHBox.AddChild(EditorMainScreenButtons);
@@ -290,17 +299,19 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 			if (c is not Button button)
 				continue;
 
-            var text = button.Text;
-            button.SetMeta(META_BUTTON_TEXT, text);
-            button.Text = string.Empty;
+            button.AddThemeFontSizeOverride(FONT_SIZE, 1);
+            button.AddThemeFontOverride(FONT, BlankFont);
+            button.IconAlignment = HorizontalAlignment.Center;
         }
 
+		EditorMainScreenButtons.AddThemeConstantOverride(SEPARATION, 0);
 		EditorMainScreenButtons.ChildEnteredTree += OnEditorSceneButtonChildEnteredTree;
 	}
 
 	void RevertMainScreenButtonsChanges()
 	{
         EditorMainScreenButtons.ChildEnteredTree -= OnEditorSceneButtonChildEnteredTree;
+		EditorMainScreenButtons.RemoveThemeConstantOverride(SEPARATION);
 
         // Move the main screen buttons back to the editor titlebar and restore their text
 
@@ -313,9 +324,9 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
             if (c is not Button button)
                 continue;
 
-            var text = button.GetMeta(META_BUTTON_TEXT, string.Empty).AsString();
-            button.Text = text;
-            button.SetMeta(META_BUTTON_TEXT, default);
+            button.RemoveThemeFontSizeOverride(FONT_SIZE);
+            button.RemoveThemeFontOverride(FONT);
+            button.IconAlignment = HorizontalAlignment.Left;
         }
     }
 
