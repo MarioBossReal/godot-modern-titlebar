@@ -16,7 +16,7 @@ public static class WindowStyler
 
     [DllImport("dwmapi.dll")]
     static extern int DwmSetWindowAttribute(
-        IntPtr hwnd, 
+        nint hwnd, 
         int dwAttribute, 
         ref uint pvAttribute, 
         int cbAttribute
@@ -52,8 +52,8 @@ public static class WindowStyler
             if (window == 0 && skipMainWindow)
                 continue;
 
-            var hwnd = (IntPtr)DisplayServer.WindowGetNativeHandle(DisplayServer.HandleType.WindowHandle, window);
-            if (hwnd == IntPtr.Zero)
+            var hwnd = (nint)DisplayServer.WindowGetNativeHandle(DisplayServer.HandleType.WindowHandle, window);
+            if (hwnd == 0)
                 continue;
             
             var popup = DisplayServer.WindowGetFlag(DisplayServer.WindowFlags.Popup, window);
@@ -84,9 +84,9 @@ public static class WindowStyler
 
         foreach (var window in windows)
         {
-            var hwnd = (IntPtr)DisplayServer.WindowGetNativeHandle(DisplayServer.HandleType.WindowHandle, window);
+            var hwnd = (nint)DisplayServer.WindowGetNativeHandle(DisplayServer.HandleType.WindowHandle, window);
 
-            if (hwnd == IntPtr.Zero)
+            if (hwnd == 0)
                 continue;
             
             var popup = DisplayServer.WindowGetFlag(DisplayServer.WindowFlags.Popup, window);

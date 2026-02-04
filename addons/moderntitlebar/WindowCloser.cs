@@ -13,7 +13,7 @@ public static class WindowCloser
     const uint WM_CLOSE = 0x0010;
 
     [DllImport("user32.dll")]
-    static extern bool PostMessage(IntPtr hWnd, uint Msg, nint wParam, nint lParam);
+    static extern bool PostMessage(nint hWnd, uint Msg, nint wParam, nint lParam);
 
     /// <summary>
     /// <para>Replicates the request sent by clicking the native window close button.</para>
@@ -21,8 +21,8 @@ public static class WindowCloser
     /// </summary>
     public static void RequestCloseMainEditorWindow()
     {
-        var hwnd = (IntPtr)DisplayServer.WindowGetNativeHandle(DisplayServer.HandleType.WindowHandle, 0);
-        if (hwnd == IntPtr.Zero)
+        var hwnd = (nint)DisplayServer.WindowGetNativeHandle(DisplayServer.HandleType.WindowHandle, 0);
+        if (hwnd == 0)
             return;
 
         PostMessage(hwnd, WM_CLOSE, 0, 0);

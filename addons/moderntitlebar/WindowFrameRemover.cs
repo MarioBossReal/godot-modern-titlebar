@@ -66,7 +66,7 @@ public static class WindowFrameRemover
     [DllImport("dwmapi.dll")]
     static extern int DwmSetWindowAttribute(nint hwnd, int attr, ref int attrValue, int attrSize);
 
-    static IntPtr _hwnd;
+    static nint _hwnd;
     static bool _applied;
     static WndProc _proc;
 
@@ -82,8 +82,8 @@ public static class WindowFrameRemover
         if (_applied)
             return;
 
-        _hwnd = (IntPtr)DisplayServer.WindowGetNativeHandle(DisplayServer.HandleType.WindowHandle, 0);
-        if (_hwnd == IntPtr.Zero)
+        _hwnd = (nint)DisplayServer.WindowGetNativeHandle(DisplayServer.HandleType.WindowHandle, 0);
+        if (_hwnd == 0)
             return;
 
         if (originalStyle == 0)
@@ -120,7 +120,7 @@ public static class WindowFrameRemover
         if (!_applied)
             return;
 
-        if (_hwnd != IntPtr.Zero)
+        if (_hwnd != 0)
         {
             if (OriginalProc != 0)
             {
@@ -150,7 +150,7 @@ public static class WindowFrameRemover
         if (!_applied)
             return;
 
-        if (_hwnd != IntPtr.Zero)
+        if (_hwnd != 0)
         {
             if (OriginalProc != 0)
             {
