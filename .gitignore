@@ -8,6 +8,7 @@ export.cfg
 export_credentials.cfg
 *.tmp
 .editorconfig
+*.uid
 
 project.godot
 icon.svg
