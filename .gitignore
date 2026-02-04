@@ -30,4 +30,5 @@ mono_crash.*.json
 # Ignore everything except addon
 !/addons/moderntitlebar/
 !/addons/moderntitlebar/**/*
+/addons/moderntitlebar/*.uid
 

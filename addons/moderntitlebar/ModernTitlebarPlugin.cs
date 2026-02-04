@@ -132,8 +132,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin
         MenuBarSizeFlagsV = EditorMenuBar.SizeFlagsVertical;
         RunBarSizeFlagsV = EditorRunBar.SizeFlagsVertical;
 
-		// Listen to window size changes
-        OnWindowSizeChanged();
+		// Listen to window size changed
         EditorWindow.SizeChanged += OnWindowSizeChanged;
 
 		// Add plugin controls to editor
@@ -155,6 +154,9 @@ public partial class ModernTitlebarPlugin : EditorPlugin
 
 		// Remove native windows titlebar
         WindowFrameRemover.Apply();
+
+		// Update
+		OnWindowSizeChanged();
     }
 
 	public override void _ExitTree()
@@ -174,7 +176,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin
 		EditorTitleBar.Show();
 		WindowStyler.RevertTitlebarColors();
 		WindowFrameRemover.Revert();
-	}
+    }
 
     public override void _Process(double delta)
     {

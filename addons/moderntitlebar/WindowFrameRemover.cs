@@ -5,6 +5,7 @@
 using Godot;
 using System;
 using System.Runtime.InteropServices;
+using static Godot.OpenXRInterface;
 
 namespace ModernTitlebar;
 
