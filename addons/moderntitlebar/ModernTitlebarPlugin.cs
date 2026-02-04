@@ -421,6 +421,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 
         SetMeta(META_ORIGINAL_PROC, WindowFrameRemover.OriginalProc);
         SetMeta(META_ORIGINAL_STYLE, WindowFrameRemover.OriginalStyle);
+		
         WindowFrameRemover.RevertWindowProcOnly();
     }
 
@@ -435,8 +436,6 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
         var proc = (nint)GetMeta(META_ORIGINAL_PROC, 0).As<long>();
 		var style = GetMeta(META_ORIGINAL_STYLE, 0).As<long>();
 		WindowFrameRemover.Apply(proc, style);
-
-        OnWindowSizeChanged();
     }
 }
 #endif
