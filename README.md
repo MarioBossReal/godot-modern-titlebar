@@ -20,5 +20,8 @@ preserving more native system functions and would pave the way for allowing non-
 # After
 <img width="1390" height="105" alt="image" src="https://github.com/user-attachments/assets/1adce6be-ee2f-47bf-ba3f-498853f2177b" />
 
+# Before
+<img width="422" height="608" alt="image" src="https://github.com/user-attachments/assets/ba0ab9b7-8670-43ed-a428-cf816a41ff86" />
 
-
+# After
+<img width="417" height="640" alt="image" src="https://github.com/user-attachments/assets/ce45f781-0a5f-4351-be1b-b661fff977e3" />
