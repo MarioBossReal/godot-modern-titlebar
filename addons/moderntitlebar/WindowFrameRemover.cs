@@ -174,10 +174,13 @@ public static class WindowFrameRemover
 
             if (DisplayServer.WindowGetMode(0) == DisplayServer.WindowMode.Maximized)
             {
-                r.left += 8;
-                r.bottom -= 8;
-                r.right -= 8;
-                r.top += 8;
+                var scale = DisplayServer.ScreenGetDpi() / 96f;
+                var padding = Mathf.RoundToInt(8 * scale);
+
+                r.left += padding;
+                r.bottom -= padding;
+                r.right -= padding;
+                r.top += padding;
             }
 
             Marshal.StructureToPtr(r, lParam, false);

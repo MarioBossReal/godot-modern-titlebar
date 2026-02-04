@@ -34,9 +34,9 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 
 	// SIZE / SCALE
     Vector2 WindowButtonSize { get; set; }
-	float ScreenScale { get; set; }
+    float ScreenScale { get; set; }
 
-	// PLUGIN CONTROLS
+    // PLUGIN CONTROLS
     MarginContainer ModernTitlebar { get; set; }
 	Control MenuBarRoot { get; set; }
 	Control RunBarRoot { get; set; }
