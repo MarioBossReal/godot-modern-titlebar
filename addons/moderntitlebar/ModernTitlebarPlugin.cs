@@ -2,11 +2,12 @@
 using Godot;
 using System;
 using System.IO;
+using System.Runtime.Loader;
 
 namespace ModernTitlebar;
 
 [Tool]
-public partial class ModernTitlebarPlugin : EditorPlugin
+public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 {
     string AddonRoot { get; set; }
 
@@ -18,6 +19,8 @@ public partial class ModernTitlebarPlugin : EditorPlugin
     
 	// META
 	static readonly StringName META_BUTTON_TEXT = "button_text";
+	static readonly StringName META_ORIGINAL_PROC = "original_proc";
+	static readonly StringName META_ORIGINAL_STYLE= "original_style";
 
 	// THEME OVERRIDES
     static readonly StringName EDITOR = "Editor";
@@ -38,6 +41,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin
     MarginContainer ModernTitlebar { get; set; }
 	Control MenuBarRoot { get; set; }
 	Control RunBarRoot { get; set; }
+	Button DragButton { get; set; }
 	MarginContainer WindowButtons { get; set; }
 	HBoxContainer WindowButtonsHBox { get; set; }
     Button MinimiseButton { get; set; }
@@ -82,8 +86,8 @@ public partial class ModernTitlebarPlugin : EditorPlugin
 		ModernTitlebar = titleBarPrefab.Instantiate<MarginContainer>();
 		MenuBarRoot = ModernTitlebar.GetNode("%MenuBarRoot") as Control;
 		RunBarRoot = ModernTitlebar.GetNode("%RunBarRoot") as Control;
-		var drag = ModernTitlebar.GetNode("%Drag") as Button;
-		drag.ButtonDown += OnDragPressed;
+		DragButton = ModernTitlebar.GetNode("%Drag") as Button;
+		DragButton.ButtonDown += OnDragPressed;
 
 		// Setup window buttons
 		var buttonsPrefab = ResourceLoader.Load<PackedScene>($"{AddonRoot}/window_buttons.scn");
@@ -408,5 +412,32 @@ public partial class ModernTitlebarPlugin : EditorPlugin
 		return Mathf.RoundToInt((float)value * ScreenScale);
 	}
 
+    public void OnBeforeSerialize()
+    {
+        MinimiseButton.Pressed -= OnMinimisePressed;
+        MaximiseButton.Pressed -= OnMaximisePressed;
+        CloseButton.Pressed -= OnClosePressed;
+		EditorWindow.SizeChanged -= OnWindowSizeChanged;
+		DragButton.ButtonDown -= OnDragPressed;
+
+        SetMeta(META_ORIGINAL_PROC, WindowFrameRemover.OriginalProc);
+        SetMeta(META_ORIGINAL_STYLE, WindowFrameRemover.OriginalStyle);
+        WindowFrameRemover.RevertWindowProcOnly();
+    }
+
+    public void OnAfterDeserialize()
+    {
+        MinimiseButton.Pressed += OnMinimisePressed;
+        MaximiseButton.Pressed += OnMaximisePressed;
+        CloseButton.Pressed += OnClosePressed;
+		EditorWindow.SizeChanged += OnWindowSizeChanged;
+		DragButton.ButtonDown += OnDragPressed;
+
+        var proc = (nint)GetMeta(META_ORIGINAL_PROC, 0).As<long>();
+		var style = GetMeta(META_ORIGINAL_STYLE, 0).As<long>();
+		WindowFrameRemover.Apply(proc, style);
+
+        OnWindowSizeChanged();
+    }
 }
 #endif

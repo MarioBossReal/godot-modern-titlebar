@@ -5,12 +5,14 @@
 using Godot;
 using System;
 using System.Runtime.InteropServices;
-using static Godot.OpenXRInterface;
 
 namespace ModernTitlebar;
 
 public static class WindowFrameRemover
 {
+    public static nint OriginalProc { get; private set; }
+    public static long OriginalStyle { get; private set; }
+
     const int GWL_STYLE = -16;
     const int GWL_WNDPROC = -4;
 
@@ -65,18 +67,14 @@ public static class WindowFrameRemover
     static extern int DwmSetWindowAttribute(nint hwnd, int attr, ref int attrValue, int attrSize);
 
     static IntPtr _hwnd;
-    static nint _oldProc;
-    static long _oldStyle;
     static bool _applied;
-
-
     static WndProc _proc;
 
     /// <summary>
     /// <para>Apply changes to the editor window through DWM and user32.</para>
     /// <para>Removes the window caption whilst preserving windows styling (round corners, borders).</para>
     /// </summary>
-    public static void Apply()
+    public static void Apply(nint originalProc = 0, long originalStyle = 0)
     {
         if (!OperatingSystem.IsWindows())
             return;
@@ -88,9 +86,12 @@ public static class WindowFrameRemover
         if (_hwnd == IntPtr.Zero)
             return;
 
-        _oldStyle = GetWindowLongPtr(_hwnd, GWL_STYLE);
+        if (originalStyle == 0)
+            OriginalStyle = GetWindowLongPtr(_hwnd, GWL_STYLE);
+        else
+            OriginalStyle = originalStyle;
 
-        var style = _oldStyle;
+        var style = OriginalStyle;
         style &= ~WS_CAPTION;
         style |= WS_THICKFRAME;
         SetWindowLongPtr(_hwnd, GWL_STYLE, (nint)style);
@@ -100,7 +101,8 @@ public static class WindowFrameRemover
 
         _proc = WindowProc;
         var newPtr = Marshal.GetFunctionPointerForDelegate(_proc);
-        _oldProc = SetWindowLongPtr(_hwnd, GWL_WNDPROC, newPtr);
+        var oldProc = SetWindowLongPtr(_hwnd, GWL_WNDPROC, newPtr);
+        OriginalProc = originalProc == 0 ? oldProc : originalProc;
 
         SetWindowPos(_hwnd, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
@@ -120,15 +122,15 @@ public static class WindowFrameRemover
 
         if (_hwnd != IntPtr.Zero)
         {
-            if (_oldProc != 0)
+            if (OriginalProc != 0)
             {
-                SetWindowLongPtr(_hwnd, GWL_WNDPROC, _oldProc);
-                _oldProc = 0;
+                SetWindowLongPtr(_hwnd, GWL_WNDPROC, OriginalProc);
+                OriginalProc = 0;
             }
 
 
-            if (_oldStyle != 0)
-                SetWindowLongPtr(_hwnd, GWL_STYLE, (nint)_oldStyle);
+            if (OriginalStyle != 0)
+                SetWindowLongPtr(_hwnd, GWL_STYLE, (nint)OriginalStyle);
 
             var corner = DWMWCP_DEFAULT;
             _ = DwmSetWindowAttribute(_hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref corner, sizeof(int));
@@ -138,7 +140,28 @@ public static class WindowFrameRemover
 
         _proc = null;
         _hwnd = 0;
-        _oldStyle = 0;
+        OriginalStyle = 0;
+        _applied = false;
+    }
+
+
+    public static void RevertWindowProcOnly()
+    {
+        if (!_applied)
+            return;
+
+        if (_hwnd != IntPtr.Zero)
+        {
+            if (OriginalProc != 0)
+            {
+                SetWindowLongPtr(_hwnd, GWL_WNDPROC, OriginalProc);
+                OriginalProc = 0;
+            }
+        }
+
+        _proc = null;
+        _hwnd = 0;
+        OriginalStyle = 0;
         _applied = false;
     }
 
@@ -153,7 +176,7 @@ public static class WindowFrameRemover
         // Re-implement hit testing for window resizing
         if (msg == WM_NCHITTEST)
         {
-            var def = CallWindowProc(_oldProc, hWnd, msg, wParam, lParam);
+            var def = CallWindowProc(OriginalProc, hWnd, msg, wParam, lParam);
             if (def != HTCLIENT)
                 return def;
 
@@ -182,7 +205,7 @@ public static class WindowFrameRemover
             return HTCLIENT;
         }
 
-        return CallWindowProc(_oldProc, hWnd, msg, wParam, lParam);
+        return CallWindowProc(OriginalProc, hWnd, msg, wParam, lParam);
     }
 }
 

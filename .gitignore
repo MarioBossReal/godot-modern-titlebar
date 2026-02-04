@@ -31,4 +31,5 @@ mono_crash.*.json
 !/addons/moderntitlebar/
 !/addons/moderntitlebar/**/*
 /addons/moderntitlebar/*.uid
+Test.cs
 
