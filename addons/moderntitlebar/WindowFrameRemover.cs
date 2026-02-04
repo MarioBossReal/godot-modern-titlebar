@@ -66,6 +66,9 @@ public static class WindowFrameRemover
     [DllImport("dwmapi.dll")]
     static extern int DwmSetWindowAttribute(nint hwnd, int attr, ref int attrValue, int attrSize);
 
+    [DllImport("user32.dll")]
+    static extern bool IsZoomed(nint hWnd);
+
     static nint _hwnd;
     static bool _applied;
     static WndProc _proc;
@@ -172,7 +175,7 @@ public static class WindowFrameRemover
         {
             var r = Marshal.PtrToStructure<RECT>(lParam);
 
-            if (DisplayServer.WindowGetMode(0) == DisplayServer.WindowMode.Maximized)
+            if (IsZoomed(hWnd))
             {
                 var scale = DisplayServer.ScreenGetDpi() / 96f;
                 var padding = Mathf.RoundToInt(8 * scale);
