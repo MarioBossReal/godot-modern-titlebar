@@ -6,4 +6,7 @@
 !/addons/moderntitlebar/**/*
 /addons/moderntitlebar/*.uid
 
+!.gitignore
+!README.md
+
 
