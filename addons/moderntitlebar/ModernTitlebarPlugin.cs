@@ -236,6 +236,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		if (backgroundColor != BackgroundColor)
 		{
 			BackgroundColor = backgroundColor;
+			CreatePluginStyleBoxes();
 			ApplyEditorPopupMenuStyleChanges();
 		}
     }
