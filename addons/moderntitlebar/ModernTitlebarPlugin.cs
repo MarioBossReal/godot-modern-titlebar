@@ -470,7 +470,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		separatorStyle.BorderWidthTop = ScaleInt(1);
 
         var fontSize = ScaleInt(12);
-        var children = EditorBaseControl.FindChildren("*", "PopupMenu", true, false);
+        var children = EditorWindow.FindChildren("*", "PopupMenu", true, false);
 
 		foreach (var child in children)
 		{
@@ -492,7 +492,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
         EditorMenuBar.RemoveThemeStyleboxOverride("pressed");
         EditorMenuBar.RemoveThemeStyleboxOverride("hover_pressed");
 
-        var children = EditorBaseControl.FindChildren("*", "PopupMenu", true, false);
+        var children = EditorWindow.FindChildren("*", "PopupMenu", true, false);
 
         foreach (var child in children)
         {
