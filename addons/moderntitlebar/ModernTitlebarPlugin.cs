@@ -105,7 +105,8 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		MenuBarRoot = ModernTitlebar.GetNode("%MenuBarRoot") as Control;
 		RunBarRoot = ModernTitlebar.GetNode("%RunBarRoot") as Control;
 		DragButton = ModernTitlebar.GetNode("%Drag") as Button;
-		DragButton.ButtonDown += OnDragPressed;
+        IconPadding = ModernTitlebar.GetNode("%IconPadding") as MarginContainer;
+        DragButton.ButtonDown += OnDragPressed;
 		DragButton.GuiInput += OnDragGuiInput;
 
 		// Setup window buttons
@@ -133,9 +134,6 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		MaximiseButton.AddThemeFontSizeOverride(FONT_SIZE, buttonFontSize);
 		CloseButton.AddThemeFontSizeOverride(FONT_SIZE, buttonFontSize);
 		WindowButtonsHBox.AddThemeConstantOverride(SEPARATION, ScaleInt(1));
-
-		// Icon padding
-		IconPadding = ModernTitlebar.GetNode("%IconPadding") as MarginContainer;
 
         // Get handles to editor control nodes
         EditorWindow = GetTree().Root;
@@ -165,10 +163,9 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		EditorBaseControl.AddChild(WindowButtons);
 		EditorBaseControl.MoveChild(WindowButtons, 1);
 
+        // Create Plugin Styling
         BackgroundColor = GetBackgroundColor();
-
-		// Create Plugin Styling
-		CreatePluginStyleBoxes();
+        CreatePluginStyleBoxes();
 
         // Apply changes to editor controls
         ApplyMainScreenButtonsChanges();
