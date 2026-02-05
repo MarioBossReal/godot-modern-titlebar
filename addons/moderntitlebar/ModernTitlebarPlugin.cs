@@ -418,6 +418,7 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		EditorTitleBar.MoveChild(EditorMenuBar, 0);
 		EditorMenuBar.SizeFlagsHorizontal = MenuBarSizeFlagsH;
 		EditorMenuBar.SizeFlagsVertical = MenuBarSizeFlagsV;
+
         EditorMenuBar.RemoveThemeFontSizeOverride(FONT_SIZE);
 
         RevertEditorPopupMenuStyleChanges();
@@ -425,8 +426,6 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 
 	void ApplyEditorPopupMenuStyleChanges()
 	{
-        var fontSize = ScaleInt(12);
-
         var hoverStyleBox = EditorMenuBar.GetThemeStylebox("normal", EDITOR).Duplicate() as StyleBoxFlat;
 
 		var radius = ScaleInt(4);
@@ -470,9 +469,8 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 		separatorStyle.BorderColor = separatorColor;
 		separatorStyle.BorderWidthTop = ScaleInt(1);
 
-
-		var children = EditorBaseControl.FindChildren("*", "PopupMenu", true, false);
-
+        var fontSize = ScaleInt(12);
+        var children = EditorBaseControl.FindChildren("*", "PopupMenu", true, false);
 
 		foreach (var child in children)
 		{
@@ -489,7 +487,10 @@ public partial class ModernTitlebarPlugin : EditorPlugin, ISerializationListener
 
 	void RevertEditorPopupMenuStyleChanges()
 	{
-        EditorBaseControl.RemoveThemeFontSizeOverride(FONT_SIZE);
+        EditorMenuBar.RemoveThemeStyleboxOverride("normal");
+        EditorMenuBar.RemoveThemeStyleboxOverride("hover");
+        EditorMenuBar.RemoveThemeStyleboxOverride("pressed");
+        EditorMenuBar.RemoveThemeStyleboxOverride("hover_pressed");
 
         var children = EditorBaseControl.FindChildren("*", "PopupMenu", true, false);
 
