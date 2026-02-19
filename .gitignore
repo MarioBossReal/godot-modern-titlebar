@@ -1,0 +1,9 @@
+cpp/build/
+cpp/out/
+.godot/
+icon.svg
+icon.svg.import
+addons/moderntitlebar/Debug/
+addons/moderntitlebar/Debug/**
+addons/moderntitlebar/Release/
+addons/moderntitlebar/Release/**
