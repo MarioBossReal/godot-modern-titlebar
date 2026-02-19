@@ -9,7 +9,9 @@ This is only a prototype, and currently only supports Windows 11 and 10.
 It is being developed mainly for Windows 11, however it has been tested on Windows 10 and works well except
 that it removes the native 1px window border and subwindow titlebars aren't colour matched to the editor's colour.
 
-Install by downloading the latest release. Cloning the addon from the repo will not work without building it.
+Install by downloading the latest release, adding it to your project and enabling the plugin. 
+
+Cloning the addon from the repo will not work without building it.
 
 ---
 
