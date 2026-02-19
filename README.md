@@ -1,5 +1,5 @@
 # Godot Modern Titlebar
-A modern titlebar redesign for Godot 4.6 written in C++ using GDExtension for Windows 11 and 10 which was originally written in C#.
+A modern titlebar redesign for Godot 4.6 written in C++ using GDExtension for Windows 11 and 10, originally written in C#.
 
 This is only a prototype, and currently only supports Windows 11 and 10.
 It is being developed mainly for Windows 11, however it has been tested on Windows 10 and works well except
