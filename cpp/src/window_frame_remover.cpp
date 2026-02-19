@@ -20,7 +20,7 @@ namespace mtb::win
         return (HWND)(intptr_t)ds->window_get_native_handle(DisplayServer::HandleType::WINDOW_HANDLE, 0);
     }
 
-    static float get_screen_scale_96dpi() {
+    static float get_screen_scale() {
         auto ds = DisplayServer::get_singleton();
         auto screen = ds->window_get_current_screen();
         return (float)ds->screen_get_dpi(screen) / 96.0f;
@@ -41,9 +41,7 @@ namespace mtb::win
             NCCALCSIZE_PARAMS* p = reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
 
             if (::IsZoomed(hWnd)) {
-                const float scale = get_screen_scale_96dpi();
                 const int padding = get_resize_border_px();
-
                 p->rgrc[0].left += padding;
                 p->rgrc[0].top += padding;
                 p->rgrc[0].right -= padding;
