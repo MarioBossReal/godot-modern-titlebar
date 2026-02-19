@@ -37,11 +37,12 @@ namespace mtb
 
 		protected:
 		static void _bind_methods();
-
+		
 		public:
 		void _enter_tree() override;
 		void _exit_tree() override;
 		void _process(double delta) override;
+		void _notification(int what);
 
 		private:
 		void apply_titlebar_colors(bool skip_main_window);
@@ -71,6 +72,7 @@ namespace mtb
 		Color get_popup_panel_color();
 		float scale_float(const float value) const;
 		int scale_int(const int value) const;
+		void calculate_screen_scale();
 
 		// SIZE / SCALE
 		Vector2 _window_button_size;

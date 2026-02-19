@@ -14,8 +14,8 @@ void mtb::ModernTitleBar::_enter_tree()
 	auto* loader = ResourceLoader::get_singleton();
 
 	// Windows DPI is 96 at 100% scaling
-	auto screen = ds->window_get_current_screen(0);
-	_screen_scale = ds->screen_get_dpi(screen) / 96.0f;
+	calculate_screen_scale();
+
 	_blank_font = loader->load("res://addons/moderntitlebar/AdobeBlank.ttf");
 
 	// Setup titlebar
@@ -125,6 +125,7 @@ void mtb::ModernTitleBar::_exit_tree()
 
 void mtb::ModernTitleBar::_process(double delta)
 {
+	calculate_screen_scale();
 	apply_titlebar_colors(true);
 
 	auto stylebox = _editor_run_bar_panel->get_theme_stylebox("panel");
@@ -140,6 +141,15 @@ void mtb::ModernTitleBar::_process(double delta)
 		_background_color = backgroundColor;
 		create_plugin_styleboxes();
 		apply_editor_popup_menu_style_changes();
+	}
+}
+
+void mtb::ModernTitleBar::_notification(int what)
+{
+	if (what == NOTIFICATION_WM_POSITION_CHANGED)
+	{
+		calculate_screen_scale();
+		_on_window_size_changed();
 	}
 }
 
@@ -537,6 +547,13 @@ float mtb::ModernTitleBar::scale_float(const float value) const
 int mtb::ModernTitleBar::scale_int(const int value) const
 {
 	return (int)Math::round((float)value * _screen_scale);
+}
+
+void mtb::ModernTitleBar::calculate_screen_scale()
+{
+	auto ds = DisplayServer::get_singleton();
+	auto screen = ds->window_get_current_screen(0);
+	_screen_scale = ds->screen_get_dpi(screen) / 96.0f;
 }
 
 void mtb::ModernTitleBar::_bind_methods()
