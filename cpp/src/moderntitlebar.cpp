@@ -242,7 +242,7 @@ void mtb::ModernTitleBar::_on_scene_tree_node_added(Node* node)
 		return;
 	}
 
-	if (!_editor_menu_bar->is_ancestor_of(popup))
+	if (_editor_menu_bar->is_ancestor_of(popup))
 	{
 		return;
 	}
