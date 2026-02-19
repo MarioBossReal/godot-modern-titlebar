@@ -14,7 +14,8 @@ void mtb::ModernTitleBar::_enter_tree()
 	auto* loader = ResourceLoader::get_singleton();
 
 	// Windows DPI is 96 at 100% scaling
-	_screen_scale = ds->screen_get_dpi() / 96.0f;
+	auto screen = ds->window_get_current_screen(0);
+	_screen_scale = ds->screen_get_dpi(screen) / 96.0f;
 	_blank_font = loader->load("res://addons/moderntitlebar/AdobeBlank.ttf");
 
 	// Setup titlebar
@@ -152,10 +153,21 @@ void mtb::ModernTitleBar::apply_titlebar_colors(bool skip_main_window)
 void mtb::ModernTitleBar::_on_window_size_changed()
 {
 	auto max = _editor_window->get_mode() == Window::MODE_MAXIMIZED;
-	auto pos = DisplayServer::get_singleton()->window_get_position(0);
+	_maximise_button->set_text(max ? String::utf8(RestoreIcon) : String::utf8(MaximizeIcon));
+	
+	return;
 
-	auto mT = max ? Math::abs(pos.x) : scale_int(-3);
-	auto mW = max ? Math::abs(pos.x) : scale_int(1);
+/*	auto ds = DisplayServer::get_singleton();
+	auto screen = ds->window_get_current_screen(0);
+	auto dpi = ds->screen_get_dpi(screen);
+
+	auto border = win::get_resize_border_px(dpi);
+
+	
+	auto pos = ds->window_get_position(0);
+
+	auto mT = max ? border : scale_int(-3);
+	auto mW = max ? border : scale_int(1);
 
 	auto tbLeft = scale_int(-3);
 	auto tbBottom = scale_int(-4);
@@ -163,10 +175,9 @@ void mtb::ModernTitleBar::_on_window_size_changed()
 	set_titlebar_margins(tbLeft, 0, mT, max ? 0 : tbBottom);
 	set_window_button_margins(0, mW, mW, 0);
 
-	auto iconPad = max ? scale_int(Math::abs(pos.x) + 4) : scale_int(8);
-	_icon_padding->add_theme_constant_override("margin_left", iconPad);
+	auto iconPad = max ? scale_int(border + 4) : scale_int(8);
+	_icon_padding->add_theme_constant_override("margin_left", iconPad);*/
 
-	_maximise_button->set_text(max ? String::utf8(RestoreIcon) : String::utf8(MaximizeIcon));
 }
 
 void mtb::ModernTitleBar::_on_minimise_pressed()
