@@ -164,30 +164,6 @@ void mtb::ModernTitleBar::_on_window_size_changed()
 {
 	auto max = _editor_window->get_mode() == Window::MODE_MAXIMIZED;
 	_maximise_button->set_text(max ? String::utf8(RestoreIcon) : String::utf8(MaximizeIcon));
-	
-	return;
-
-/*	auto ds = DisplayServer::get_singleton();
-	auto screen = ds->window_get_current_screen(0);
-	auto dpi = ds->screen_get_dpi(screen);
-
-	auto border = win::get_resize_border_px(dpi);
-
-	
-	auto pos = ds->window_get_position(0);
-
-	auto mT = max ? border : scale_int(-3);
-	auto mW = max ? border : scale_int(1);
-
-	auto tbLeft = scale_int(-3);
-	auto tbBottom = scale_int(-4);
-
-	set_titlebar_margins(tbLeft, 0, mT, max ? 0 : tbBottom);
-	set_window_button_margins(0, mW, mW, 0);
-
-	auto iconPad = max ? scale_int(border + 4) : scale_int(8);
-	_icon_padding->add_theme_constant_override("margin_left", iconPad);*/
-
 }
 
 void mtb::ModernTitleBar::_on_minimise_pressed()
@@ -335,8 +311,6 @@ void mtb::ModernTitleBar::apply_main_screen_buttons_changes()
 
 void mtb::ModernTitleBar::revert_main_screen_buttons_changes()
 {
-	// Disconnect child entered tree?
-
 	_editor_main_screen_buttons->remove_theme_constant_override("separation");
 
 	// Move the main screen buttons back to the editor titlebar and restore their text

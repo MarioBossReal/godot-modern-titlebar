@@ -22,7 +22,17 @@ namespace mtb::win
 
     static float get_screen_scale_96dpi() {
         auto ds = DisplayServer::get_singleton();
-        return (float)ds->screen_get_dpi() / 96.0f;
+        auto screen = ds->window_get_current_screen();
+        return (float)ds->screen_get_dpi(screen) / 96.0f;
+    }
+
+    static int get_resize_border_px() {
+        auto ds = DisplayServer::get_singleton();
+        auto screen = ds->window_get_current_screen();
+        auto dpi = ds->screen_get_dpi(screen);
+        const int frame = GetSystemMetricsForDpi(SM_CXSIZEFRAME, dpi);
+        const int padded = GetSystemMetricsForDpi(SM_CXPADDEDBORDER, dpi);
+        return frame + padded;
     }
 
     static LRESULT CALLBACK ModernTitlebarWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -32,7 +42,7 @@ namespace mtb::win
 
             if (::IsZoomed(hWnd)) {
                 const float scale = get_screen_scale_96dpi();
-                const int padding = (int)std::lround(8.0f * scale);
+                const int padding = get_resize_border_px();
 
                 p->rgrc[0].left += padding;
                 p->rgrc[0].top += padding;
@@ -54,7 +64,7 @@ namespace mtb::win
                 return def;
             }
 
-            const int border = 8;
+            const int border = get_resize_border_px();
 
             const int x = GET_X_LPARAM(lParam);
             const int y = GET_Y_LPARAM(lParam);
