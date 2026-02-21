@@ -92,7 +92,12 @@ void mtb::ModernTitleBar::_enter_tree()
 	_mobile_icon = loader->load("res://addons/moderntitlebar/icons/mobile.svg");
 	_compatibility_icon = loader->load("res://addons/moderntitlebar/icons/compatibility.svg");
 
+	_forward_plus_icon.ptr()->set_base_scale(_forward_plus_icon.ptr()->get_base_scale() * _screen_scale);
+	_mobile_icon.ptr()->set_base_scale(_mobile_icon.ptr()->get_base_scale() * _screen_scale);
+	_compatibility_icon.ptr()->set_base_scale(_compatibility_icon.ptr()->get_base_scale() * _screen_scale);
 
+	Ref<DPITexture> godotIcon = loader->load("res://addons/moderntitlebar/icon.svg");
+	godotIcon.ptr()->set_base_scale(godotIcon.ptr()->get_base_scale() * _screen_scale);
 
 	// Apply changes to editor controls
 	apply_main_screen_buttons_changes();
