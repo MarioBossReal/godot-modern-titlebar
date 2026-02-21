@@ -20,7 +20,7 @@ project/assembly_name="Modern Titlebar GDExtension"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/moderntitlebar/plugin.cfg")
+enabled=PackedStringArray("res://addons/zylann.editor_debugger/plugin.cfg")
 
 [physics]
 

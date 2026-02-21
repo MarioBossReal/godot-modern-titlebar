@@ -32,6 +32,7 @@ void mtb::ModernTitleBar::_enter_tree()
 	Ref<PackedScene> buttonPrefab = loader->load("res://addons/moderntitlebar/window_buttons.scn");
 	_window_buttons = Object::cast_to<MarginContainer>(buttonPrefab.ptr()->instantiate());
 	_window_buttons_hbox = _window_buttons->get_node<HBoxContainer>("%HBoxContainer");
+	_custom_window_buttons_hbox = _window_buttons->get_node<HBoxContainer>("%CustomButtons");
 	_minimise_button = _window_buttons->get_node<Button>("%Minimise");
 	_maximise_button = _window_buttons->get_node<Button>("%Maximise");
 	_close_button = _window_buttons->get_node<Button>("%Close");
@@ -66,6 +67,7 @@ void mtb::ModernTitleBar::_enter_tree()
 	_editor_main_screen_buttons = Object::cast_to<HBoxContainer>(_editor_title_bar->find_child("*EditorMainScreenButtons*", true, false));
 	_editor_scene_tabs = Object::cast_to<Control>(_editor_base_control->find_child("*EditorSceneTabs*", true, false));
 	_editor_scene_tabs_hbox = Object::cast_to<HBoxContainer>(_editor_scene_tabs->find_child("*HBoxContainer*", true, false));
+	_editor_render_mode_option_button = Object::cast_to<OptionButton>(_editor_title_bar->get_child(5)->get_child(0));
 
 	// Listen to window size changed
 	_editor_window->connect("size_changed", Callable(this, "_on_window_size_changed"));
@@ -81,14 +83,26 @@ void mtb::ModernTitleBar::_enter_tree()
 	_background_color = get_background_color();
 	create_plugin_styleboxes();
 
+	// Load custom window button styling
+	_custom_window_button_normal_style = loader->load("res://addons/moderntitlebar/styles/custom_window_button_normal.res");
+	_custom_window_button_hover_style = loader->load("res://addons/moderntitlebar/styles/custom_window_button_hover.res");
+	_custom_window_button_pressed_style = loader->load("res://addons/moderntitlebar/styles/custom_window_button_pressed.res");
+
+	_forward_plus_icon = loader->load("res://addons/moderntitlebar/icons/forward+.svg");
+	_mobile_icon = loader->load("res://addons/moderntitlebar/icons/mobile.svg");
+	_compatibility_icon = loader->load("res://addons/moderntitlebar/icons/compatibility.svg");
+
+
+
 	// Apply changes to editor controls
 	apply_main_screen_buttons_changes();
 	apply_editor_run_bar_changes();
 	apply_editor_menu_bar_changes();
 	apply_editor_popup_menu_style_changes();
+	apply_editor_titlebar_changes();
 
-	// Hide default title bar
-	_editor_title_bar->hide();
+	// Hide default title bar -> nope, we gotta chuck the whole thing inside the plugin to support toolbar plugins
+	// _editor_title_bar->hide();
 
 	// Theme native titlebars of editor subwindows
 	apply_titlebar_colors(true);
@@ -104,10 +118,15 @@ void mtb::ModernTitleBar::_enter_tree()
 	ds->window_set_position(pos);
 
 	get_tree()->connect("node_added", Callable(this, "_on_scene_tree_node_added"));
+
+	_enabled = true;
 }
 
 void mtb::ModernTitleBar::_exit_tree()
 {
+	_enabled = false;
+
+	revert_editor_titlebar_changes();
 	revert_editor_popup_menu_style_changes();
 	revert_editor_menu_bar_changes();
 	revert_main_screen_buttons_changes();
@@ -118,7 +137,7 @@ void mtb::ModernTitleBar::_exit_tree()
 	_editor_base_control->remove_child(_window_buttons);
 	_window_buttons->queue_free();
 
-	_editor_title_bar->show();
+	//_editor_title_bar->show();
 	win::revert_titlebar_colors();
 	win::revert_window_frame_remover();
 }
@@ -250,6 +269,23 @@ void mtb::ModernTitleBar::_on_scene_tree_node_added(Node* node)
 	popup->add_theme_font_size_override("font_size", fontSize);
 	popup->add_theme_stylebox_override("panel", _popup_panel_style);
 	popup->add_theme_stylebox_override("separator", _popup_separator_style);
+}
+
+void mtb::ModernTitleBar::_on_editor_toolbar_node_added(Node* node)
+{
+	if (!_enabled)
+	{
+		return;
+	}
+
+	auto button = Object::cast_to<Button>(node);
+
+	if (!button)
+	{
+		return;
+	}
+
+	style_custom_window_button(button);
 }
 
 void mtb::ModernTitleBar::create_plugin_styleboxes()
@@ -470,6 +506,135 @@ void mtb::ModernTitleBar::revert_editor_popup_menu_style_changes()
 	}
 }
 
+void mtb::ModernTitleBar::apply_editor_titlebar_changes()
+{
+	// Chuck the entire editor titlebar into the custom window decorations, to support toolbar plugins
+
+	_editor_main_vbox->remove_child(_editor_title_bar);
+	_custom_window_buttons_hbox->add_child(_editor_title_bar);
+
+	// Style the buttons
+
+	auto buttons = _editor_title_bar->find_children("*", "Button", true, false);
+
+	for (int i = 0; i < buttons.size(); i++)
+	{
+		auto button = Object::cast_to<Button>(buttons[i]);
+		if (!button)
+		{
+			continue;
+		}
+
+		style_custom_window_button(button);
+	}
+
+	// Custom style the render mode options button
+
+	_editor_render_mode_option_button->add_theme_icon_override("arrow", memnew(ImageTexture));
+	_editor_render_mode_option_button->add_theme_constant_override("arrow_margin", 0);
+	_editor_render_mode_option_button->add_theme_constant_override("h_separation", 0);
+	_editor_render_mode_option_button->set_item_icon(0, _forward_plus_icon);
+	_editor_render_mode_option_button->set_item_icon(1, _mobile_icon);
+	_editor_render_mode_option_button->set_item_icon(2, _compatibility_icon);
+
+	auto fontColor = _editor_render_mode_option_button->get_theme_color("font_color");
+	auto fontPressedColor = _editor_render_mode_option_button->get_theme_color("font_pressed_color");
+	auto fontHoverColor = _editor_render_mode_option_button->get_theme_color("font_hover_color");
+	auto fontHoverPressedColor = _editor_render_mode_option_button->get_theme_color("font_hover_pressed_color");
+
+	_editor_render_mode_option_button->add_theme_color_override("icon_normal_color", fontColor);
+	_editor_render_mode_option_button->add_theme_color_override("icon_pressed_color", fontPressedColor);
+	_editor_render_mode_option_button->add_theme_color_override("icon_hover_color", fontHoverColor);
+	_editor_render_mode_option_button->add_theme_color_override("icon_hover_pressed_color", fontHoverPressedColor);
+
+	// Listen to plugins added after this plugin is enabled
+	_editor_title_bar->connect("child_entered_tree", Callable(this, "_on_editor_toolbar_node_added"));
+}
+
+void mtb::ModernTitleBar::revert_editor_titlebar_changes()
+{
+	// Put it back
+	_custom_window_buttons_hbox->remove_child(_editor_title_bar);
+	_editor_main_vbox->add_child(_editor_title_bar);
+	_editor_main_vbox->move_child(_editor_title_bar, 0);
+
+	// Remove button styling
+
+	auto buttons = _editor_title_bar->find_children("*", "Button", true, false);
+
+	for (int i = 0; i < buttons.size(); i++)
+	{
+		auto button = Object::cast_to<Button>(buttons[i]);
+		if (!button)
+		{
+			continue;
+		}
+
+		revert_custom_window_button_styling(button);
+	}
+
+	// Revert render mode options button custom styling
+
+	_editor_render_mode_option_button->remove_theme_icon_override("arrow");
+	_editor_render_mode_option_button->remove_theme_constant_override("arrow_margin");
+	_editor_render_mode_option_button->remove_theme_constant_override("h_separation");
+	_editor_render_mode_option_button->set_item_icon(0, nullptr);
+	_editor_render_mode_option_button->set_item_icon(1, nullptr);
+	_editor_render_mode_option_button->set_item_icon(2, nullptr);
+
+	_editor_render_mode_option_button->remove_theme_color_override("icon_normal_color");
+	_editor_render_mode_option_button->remove_theme_color_override("icon_pressed_color");
+	_editor_render_mode_option_button->remove_theme_color_override("icon_hover_color");
+	_editor_render_mode_option_button->remove_theme_color_override("icon_hover_pressed_color");
+}
+
+void mtb::ModernTitleBar::style_custom_window_button(Button* button)
+{
+	auto originalSize = button->get_custom_minimum_size();
+	button->set_meta("original_custom_minimum_size", originalSize);
+	button->set_custom_minimum_size(_window_button_size);
+
+	auto flat = button->is_flat();
+	button->set_meta("original_flat", flat);
+	button->set_flat(false);
+
+	auto align_h = button->get_icon_alignment();
+	auto align_v = button->get_vertical_icon_alignment();
+	button->set_meta("original_align_h", align_h);
+	button->set_meta("original_align_v", align_v);
+	button->set_icon_alignment(HORIZONTAL_ALIGNMENT_CENTER);
+	button->set_vertical_icon_alignment(VERTICAL_ALIGNMENT_CENTER);
+
+	//int buttonFontSize = scale_int(10);
+	button->add_theme_font_override("font", _blank_font);
+	button->add_theme_font_size_override("font_size", 1);
+	button->add_theme_stylebox_override("normal", _custom_window_button_normal_style);
+	button->add_theme_stylebox_override("hover", _custom_window_button_hover_style);
+	button->add_theme_stylebox_override("pressed", _custom_window_button_pressed_style);
+	button->add_theme_stylebox_override("hover_pressed", _custom_window_button_pressed_style);
+}
+
+void mtb::ModernTitleBar::revert_custom_window_button_styling(Button* button)
+{
+	Vector2 originalSize = button->get_meta("original_custom_minimum_size", Vector2(0,0));
+	button->set_custom_minimum_size(originalSize);
+
+	bool originalFlat = button->get_meta("original_flat", true);
+	button->set_flat(originalFlat);
+
+	HorizontalAlignment align_h = static_cast<HorizontalAlignment>(int(button->get_meta("original_align_h", HORIZONTAL_ALIGNMENT_LEFT)));
+	VerticalAlignment align_v = static_cast<VerticalAlignment>(int(button->get_meta("original_align_v", HORIZONTAL_ALIGNMENT_LEFT)));
+	button->set_icon_alignment(align_h);
+	button->set_vertical_icon_alignment(align_v);
+
+	button->remove_theme_font_override("font");
+	button->remove_theme_font_size_override("font_size");
+	button->remove_theme_stylebox_override("normal");
+	button->remove_theme_stylebox_override("hover");
+	button->remove_theme_stylebox_override("pressed");
+	button->remove_theme_stylebox_override("hover_pressed");
+}
+
 void mtb::ModernTitleBar::set_titlebar_margins(const int l, const int r, const int t, const int b)
 {
 	_modern_titlebar->add_theme_constant_override("margin_left", l);
@@ -550,6 +715,11 @@ void mtb::ModernTitleBar::_bind_methods()
 	ClassDB::bind_method(
 		D_METHOD("_on_scene_tree_node_added", "node"),
 		&mtb::ModernTitleBar::_on_scene_tree_node_added
+	);
+
+	ClassDB::bind_method(
+		D_METHOD("_on_editor_toolbar_node_added", "node"),
+		&mtb::ModernTitleBar::_on_editor_toolbar_node_added
 	);
 
 	ClassDB::bind_method(

@@ -26,6 +26,10 @@
 #include "window_styler.hpp"
 #include "window_context_menu.hpp"
 #include "window_frame_remover.hpp"
+#include <godot_cpp/classes/dpi_texture.hpp>
+#include <godot_cpp/classes/option_button.hpp>
+#include <godot_cpp/classes/image_texture.hpp>
+#include <godot_cpp/classes/button.hpp>
 
 using namespace godot;
 
@@ -54,6 +58,7 @@ namespace mtb
 		void _on_editor_scene_button_child_entered_tree(Node* child);
 		void _on_drag_gui_input(InputEvent* event);
 		void _on_scene_tree_node_added(Node* node);
+		void _on_editor_toolbar_node_added(Node* node);
 		void create_plugin_styleboxes();
 		void apply_main_screen_buttons_changes();
 		void revert_main_screen_buttons_changes();
@@ -65,6 +70,8 @@ namespace mtb
 		void revert_editor_menu_bar_changes();
 		void apply_editor_popup_menu_style_changes();
 		void revert_editor_popup_menu_style_changes();
+		void apply_editor_titlebar_changes();
+		void revert_editor_titlebar_changes();
 		void set_titlebar_margins(const int l, const int r, const int t, const int b);
 		void set_window_button_margins(const int l, const int r, const int t, const int b);
 		Color get_background_color();
@@ -73,6 +80,10 @@ namespace mtb
 		float scale_float(const float value) const;
 		int scale_int(const int value) const;
 		void calculate_screen_scale();
+		void style_custom_window_button(Button* button);
+		void revert_custom_window_button_styling(Button* button);
+
+		bool _enabled;
 
 		// SIZE / SCALE
 		Vector2 _window_button_size;
@@ -86,6 +97,7 @@ namespace mtb
 		Button* _drag_button;
 		MarginContainer* _window_buttons;
 		HBoxContainer* _window_buttons_hbox;
+		HBoxContainer* _custom_window_buttons_hbox;
 		Button* _minimise_button;
 		Button* _maximise_button;
 		Button* _close_button;
@@ -98,6 +110,14 @@ namespace mtb
 		Ref<StyleBoxFlat> _menu_bar_selected_style;
 		Ref<StyleBoxFlat> _popup_panel_style;
 		Ref<StyleBoxFlat> _popup_separator_style;
+
+		Ref<StyleBoxFlat> _custom_window_button_normal_style;
+		Ref<StyleBoxFlat> _custom_window_button_hover_style;
+		Ref<StyleBoxFlat> _custom_window_button_pressed_style;
+		
+		Ref<DPITexture> _forward_plus_icon;
+		Ref<DPITexture> _mobile_icon;
+		Ref<DPITexture> _compatibility_icon;
 
 		// A workaround to the fact that the EditorMainScreen's functionality depends extremely heavily on the buttons' names
 		Ref<FontFile> _blank_font;
@@ -114,5 +134,6 @@ namespace mtb
 		HBoxContainer* _editor_main_screen_buttons;
 		Control* _editor_scene_tabs;
 		HBoxContainer* _editor_scene_tabs_hbox;
+		OptionButton* _editor_render_mode_option_button;
 	};
 }
