@@ -33,6 +33,7 @@ void mtb::ModernTitleBar::_enter_tree()
 	_window_buttons = Object::cast_to<MarginContainer>(buttonPrefab.ptr()->instantiate());
 	_window_buttons_hbox = _window_buttons->get_node<HBoxContainer>("%HBoxContainer");
 	_custom_window_buttons_hbox = _window_buttons->get_node<HBoxContainer>("%CustomButtons");
+	_render_buttons_hbox = _window_buttons->get_node<HBoxContainer>("%RenderButtons");
 	_minimise_button = _window_buttons->get_node<Button>("%Minimise");
 	_maximise_button = _window_buttons->get_node<Button>("%Maximise");
 	_close_button = _window_buttons->get_node<Button>("%Close");
@@ -67,7 +68,9 @@ void mtb::ModernTitleBar::_enter_tree()
 	_editor_main_screen_buttons = Object::cast_to<HBoxContainer>(_editor_title_bar->find_child("*EditorMainScreenButtons*", true, false));
 	_editor_scene_tabs = Object::cast_to<Control>(_editor_base_control->find_child("*EditorSceneTabs*", true, false));
 	_editor_scene_tabs_hbox = Object::cast_to<HBoxContainer>(_editor_scene_tabs->find_child("*HBoxContainer*", true, false));
-	_editor_render_mode_option_button = Object::cast_to<OptionButton>(_editor_title_bar->get_child(5)->get_child(0));
+	_editor_render_buttons_hbox = Object::cast_to<HBoxContainer>(_editor_title_bar->get_child(5));
+	_editor_render_mode_option_button = Object::cast_to<OptionButton>(_editor_render_buttons_hbox->get_child(0));
+	_editor_update_spinner = Object::cast_to<MenuButton>(_editor_render_buttons_hbox->get_child(1));
 
 	// Listen to window size changed
 	_editor_window->connect("size_changed", Callable(this, "_on_window_size_changed"));
@@ -513,8 +516,21 @@ void mtb::ModernTitleBar::revert_editor_popup_menu_style_changes()
 
 void mtb::ModernTitleBar::apply_editor_titlebar_changes()
 {
-	// Chuck the entire editor titlebar into the custom window decorations, to support toolbar plugins
+	// Rip out the rendermode/update spinner buttons to have full control over their placement order
+	_editor_title_bar->remove_child(_editor_render_buttons_hbox);
 
+	// Swap the button order
+	_editor_render_buttons_hbox->move_child(_editor_update_spinner, 0);
+
+	// Match decoration buttons styling
+	_editor_render_buttons_hbox->add_theme_constant_override("separation", scale_int(1));
+	style_custom_window_button(_editor_render_mode_option_button);
+	style_custom_window_button(_editor_update_spinner);
+
+	// Add to decorations
+	_render_buttons_hbox->add_child(_editor_render_buttons_hbox);
+
+	// Chuck the entire editor remainder of the titlebar into the custom window decorations, to support toolbar plugins
 	_editor_main_vbox->remove_child(_editor_title_bar);
 	_custom_window_buttons_hbox->add_child(_editor_title_bar);
 
@@ -561,7 +577,23 @@ void mtb::ModernTitleBar::apply_editor_titlebar_changes()
 
 void mtb::ModernTitleBar::revert_editor_titlebar_changes()
 {
-	// Put it back
+	// Remove rendermode buttons from decorations
+	_render_buttons_hbox->remove_child(_editor_render_buttons_hbox);
+
+	// Add it back to the titlebar
+	_editor_title_bar->add_child(_editor_render_buttons_hbox);
+	_editor_title_bar->move_child(_editor_render_buttons_hbox, 2);
+
+	// Unswap the button order
+	_editor_render_buttons_hbox->move_child(_editor_update_spinner, 1);
+
+	// Revert styling
+	_editor_render_buttons_hbox->remove_theme_constant_override("separation");
+	revert_custom_window_button_styling(_editor_render_mode_option_button);
+	revert_custom_window_button_styling(_editor_update_spinner);
+
+
+	// Put the titlebar back
 	_custom_window_buttons_hbox->remove_child(_editor_title_bar);
 	_editor_main_vbox->add_child(_editor_title_bar);
 	_editor_main_vbox->move_child(_editor_title_bar, 0);

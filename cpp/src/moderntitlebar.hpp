@@ -30,6 +30,7 @@
 #include <godot_cpp/classes/option_button.hpp>
 #include <godot_cpp/classes/image_texture.hpp>
 #include <godot_cpp/classes/button.hpp>
+#include <godot_cpp/classes/menu_button.hpp>
 
 using namespace godot;
 
@@ -98,6 +99,7 @@ namespace mtb
 		MarginContainer* _window_buttons;
 		HBoxContainer* _window_buttons_hbox;
 		HBoxContainer* _custom_window_buttons_hbox;
+		HBoxContainer* _render_buttons_hbox;
 		Button* _minimise_button;
 		Button* _maximise_button;
 		Button* _close_button;
@@ -134,6 +136,8 @@ namespace mtb
 		HBoxContainer* _editor_main_screen_buttons;
 		Control* _editor_scene_tabs;
 		HBoxContainer* _editor_scene_tabs_hbox;
+		HBoxContainer* _editor_render_buttons_hbox;
 		OptionButton* _editor_render_mode_option_button;
+		MenuButton* _editor_update_spinner;
 	};
 }
