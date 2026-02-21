@@ -513,6 +513,9 @@ void mtb::ModernTitleBar::apply_editor_titlebar_changes()
 	_editor_main_vbox->remove_child(_editor_title_bar);
 	_custom_window_buttons_hbox->add_child(_editor_title_bar);
 
+	// Match window button separation
+	_editor_title_bar->add_theme_constant_override("separation", scale_int(1));
+
 	// Style the buttons
 
 	auto buttons = _editor_title_bar->find_children("*", "Button", true, false);
@@ -559,6 +562,8 @@ void mtb::ModernTitleBar::revert_editor_titlebar_changes()
 	_editor_main_vbox->move_child(_editor_title_bar, 0);
 
 	// Remove button styling
+
+	_editor_title_bar->remove_theme_constant_override("separation");
 
 	auto buttons = _editor_title_bar->find_children("*", "Button", true, false);
 
