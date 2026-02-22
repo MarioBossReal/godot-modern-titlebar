@@ -14,4 +14,5 @@ namespace mtb::win
 {
     void apply_window_frame_remover();
     void revert_window_frame_remover();
+    void on_window_size_changed();
 }

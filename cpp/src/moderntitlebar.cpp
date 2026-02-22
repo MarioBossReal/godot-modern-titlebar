@@ -190,7 +190,9 @@ void mtb::ModernTitleBar::apply_titlebar_colors(bool skip_main_window)
 void mtb::ModernTitleBar::_on_window_size_changed()
 {
 	auto max = _editor_window->get_mode() == Window::MODE_MAXIMIZED;
-	_maximise_button->set_text(max ? String::utf8(RestoreIcon) : String::utf8(MaximizeIcon));
+	auto full = _editor_window->get_mode() == Window::MODE_FULLSCREEN;
+	_maximise_button->set_text(max || full ? String::utf8(RestoreIcon) : String::utf8(MaximizeIcon));
+	win::on_window_size_changed();
 }
 
 void mtb::ModernTitleBar::_on_minimise_pressed()
@@ -200,7 +202,9 @@ void mtb::ModernTitleBar::_on_minimise_pressed()
 
 void mtb::ModernTitleBar::_on_maximise_pressed()
 {
-	if (_editor_window->get_mode() == Window::MODE_MAXIMIZED)
+	auto max = _editor_window->get_mode() == Window::MODE_MAXIMIZED;
+	auto full = _editor_window->get_mode() == Window::MODE_FULLSCREEN;
+	if (max || full)
 	{
 		_editor_window->set_mode(Window::MODE_WINDOWED);
 	}
@@ -217,6 +221,11 @@ void mtb::ModernTitleBar::_on_close_pressed()
 
 void mtb::ModernTitleBar::_on_drag_pressed()
 {
+	auto full = _editor_window->get_mode() == Window::MODE_FULLSCREEN;
+	if (full)
+	{
+		return;
+	}
 	_editor_window->start_drag();
 }
 

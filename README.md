@@ -22,4 +22,3 @@ Cloning the addon from the repo will not work without building it.
 <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c0e85f2a-fdd2-4c21-b5f1-3e49ff19155a" />
 
 <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c9fec894-37a9-4c4c-8e82-d8ad398c0f7c" />
-

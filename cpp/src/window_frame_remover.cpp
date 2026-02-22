@@ -5,9 +5,6 @@ using namespace godot;
 namespace mtb::win
 {
     static constexpr int GWL_WNDPROC = -4;
-    static constexpr int DWMWA_WINDOW_CORNER_PREFERENCE = 33;
-    static constexpr int DWMWCP_DEFAULT = 0;
-    static constexpr int DWMWCP_ROUND = 2;
 
     static HWND     g_hwnd = nullptr;
     static WNDPROC  g_original_proc = nullptr;
@@ -62,6 +59,16 @@ namespace mtb::win
                 return def;
             }
 
+
+            auto* ds = DisplayServer::get_singleton();
+            auto mode = ds->window_get_mode(0);
+            auto full = mode == DisplayServer::WindowMode::WINDOW_MODE_FULLSCREEN || mode == DisplayServer::WindowMode::WINDOW_MODE_EXCLUSIVE_FULLSCREEN;
+
+            if (full)
+            {
+                return HTCLIENT;
+            }
+
             const int border = get_resize_border_px();
 
             const int x = GET_X_LPARAM(lParam);
@@ -92,6 +99,21 @@ namespace mtb::win
             return ::DefWindowProcW(hWnd, msg, wParam, lParam);
         }
         return ::CallWindowProcW(g_original_proc, hWnd, msg, wParam, lParam);
+    }
+
+    void on_window_size_changed()
+    {
+        if (!g_applied || !g_hwnd)
+        {
+            return;
+        }
+
+        auto* ds = DisplayServer::get_singleton();
+        auto mode = ds->window_get_mode(0);
+
+        auto full = mode == DisplayServer::WindowMode::WINDOW_MODE_FULLSCREEN || mode == DisplayServer::WindowMode::WINDOW_MODE_EXCLUSIVE_FULLSCREEN;
+        int corner = full ? DWMWCP_DONOTROUND : DWMWCP_ROUND;
+        ::DwmSetWindowAttribute(g_hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &corner, sizeof(corner));
     }
 
     void apply_window_frame_remover() {
