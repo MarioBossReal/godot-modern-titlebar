@@ -530,14 +530,14 @@ void mtb::ModernTitleBar::apply_editor_titlebar_changes()
 	// Add to decorations
 	_render_buttons_hbox->add_child(_editor_render_buttons_hbox);
 
-	// Chuck the entire editor remainder of the titlebar into the custom window decorations, to support toolbar plugins
+	// Chuck the entire remainder of the editor titlebar into the custom window decorations, to support toolbar plugins
 	_editor_main_vbox->remove_child(_editor_title_bar);
 	_custom_window_buttons_hbox->add_child(_editor_title_bar);
 
 	// Match window button separation
 	_editor_title_bar->add_theme_constant_override("separation", scale_int(1));
 
-	// Style the buttons
+	// Style any toolbar plugin buttons
 
 	auto buttons = _editor_title_bar->find_children("*", "Button", true, false);
 

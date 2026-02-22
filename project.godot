@@ -20,7 +20,7 @@ project/assembly_name="Modern Titlebar GDExtension"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/ProjectResolution/plugin.cfg", "res://addons/moderntitlebar/plugin.cfg", "res://addons/zylann.editor_debugger/plugin.cfg")
+enabled=PackedStringArray("res://addons/ProjectResolution/plugin.cfg", "res://addons/zylann.editor_debugger/plugin.cfg")
 
 [physics]
 
@@ -29,3 +29,4 @@ enabled=PackedStringArray("res://addons/ProjectResolution/plugin.cfg", "res://ad
 [rendering]
 
 rendering_device/driver.windows="d3d12"
+environment/defaults/default_clear_color=Color(0, 0, 0, 1)
