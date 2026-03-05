@@ -152,6 +152,11 @@ void mtb::ModernTitleBar::_exit_tree()
 
 void mtb::ModernTitleBar::_process(double delta)
 {
+	if (_editor_window->get_mode() == Window::MODE_MINIMIZED)
+	{
+		return;
+	}
+
 	calculate_screen_scale();
 	apply_titlebar_colors(true);
 
