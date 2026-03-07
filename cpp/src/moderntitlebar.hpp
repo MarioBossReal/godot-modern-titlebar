@@ -29,8 +29,8 @@
 #include <godot_cpp/classes/dpi_texture.hpp>
 #include <godot_cpp/classes/option_button.hpp>
 #include <godot_cpp/classes/image_texture.hpp>
-#include <godot_cpp/classes/button.hpp>
 #include <godot_cpp/classes/menu_button.hpp>
+#include <godot_cpp/classes/theme.hpp>
 
 using namespace godot;
 

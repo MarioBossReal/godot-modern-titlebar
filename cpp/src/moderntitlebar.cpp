@@ -668,6 +668,17 @@ void mtb::ModernTitleBar::style_custom_window_button(Button* button)
 	button->add_theme_stylebox_override("hover", _custom_window_button_hover_style);
 	button->add_theme_stylebox_override("pressed", _custom_window_button_pressed_style);
 	button->add_theme_stylebox_override("hover_pressed", _custom_window_button_pressed_style);
+
+	// Ensure the button actually has an icon
+	auto icon = button->get_button_icon();
+	if (icon.ptr())
+	{
+		return;
+	}
+	
+	auto defaultIcon = get_editor_interface()->get_editor_theme().ptr()->get_icon("Node", "EditorIcons");
+	button->set_meta("original_icon_empty", true);
+	button->set_button_icon(defaultIcon);
 }
 
 void mtb::ModernTitleBar::revert_custom_window_button_styling(Button* button)
@@ -689,6 +700,14 @@ void mtb::ModernTitleBar::revert_custom_window_button_styling(Button* button)
 	button->remove_theme_stylebox_override("hover");
 	button->remove_theme_stylebox_override("pressed");
 	button->remove_theme_stylebox_override("hover_pressed");
+
+	bool originalIconEmpty = button->get_meta("original_icon_empty", false);
+	if (!originalIconEmpty)
+	{
+		return;
+	}
+
+	button->set_button_icon(nullptr);
 }
 
 void mtb::ModernTitleBar::set_titlebar_margins(const int l, const int r, const int t, const int b)
@@ -757,29 +776,9 @@ void mtb::ModernTitleBar::_bind_methods()
 	ClassDB::bind_method(D_METHOD("_on_minimise_pressed"), &mtb::ModernTitleBar::_on_minimise_pressed);
 	ClassDB::bind_method(D_METHOD("_on_maximise_pressed"), &mtb::ModernTitleBar::_on_maximise_pressed);
 	ClassDB::bind_method(D_METHOD("_on_close_pressed"), &mtb::ModernTitleBar::_on_close_pressed);
-
-	ClassDB::bind_method(
-		D_METHOD("_on_drag_gui_input", "event"),
-		&mtb::ModernTitleBar::_on_drag_gui_input
-	);
-
-	ClassDB::bind_method(
-		D_METHOD("_on_window_size_changed"),
-		&mtb::ModernTitleBar::_on_window_size_changed
-	);
-
-	ClassDB::bind_method(
-		D_METHOD("_on_scene_tree_node_added", "node"),
-		&mtb::ModernTitleBar::_on_scene_tree_node_added
-	);
-
-	ClassDB::bind_method(
-		D_METHOD("_on_editor_toolbar_node_added", "node"),
-		&mtb::ModernTitleBar::_on_editor_toolbar_node_added
-	);
-
-	ClassDB::bind_method(
-		D_METHOD("_on_editor_scene_button_child_entered_tree", "child"),
-		&mtb::ModernTitleBar::_on_editor_scene_button_child_entered_tree
-	);
+	ClassDB::bind_method(D_METHOD("_on_drag_gui_input", "event"), &mtb::ModernTitleBar::_on_drag_gui_input);
+	ClassDB::bind_method(D_METHOD("_on_window_size_changed"),&mtb::ModernTitleBar::_on_window_size_changed);
+	ClassDB::bind_method(D_METHOD("_on_scene_tree_node_added", "node"), &mtb::ModernTitleBar::_on_scene_tree_node_added);
+	ClassDB::bind_method(D_METHOD("_on_editor_toolbar_node_added", "node"), &mtb::ModernTitleBar::_on_editor_toolbar_node_added);
+	ClassDB::bind_method(D_METHOD("_on_editor_scene_button_child_entered_tree", "child"), &mtb::ModernTitleBar::_on_editor_scene_button_child_entered_tree);
 }
