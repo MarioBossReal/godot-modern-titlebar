@@ -1,17 +1,12 @@
 <h1 align="center">Godot Modern Titlebar</h1>
-<img width="2600" height="2600" alt="first" src="https://github.com/user-attachments/assets/7fa30812-6463-41e5-94ab-6a1343cb6ddd" />
+
+A modern titlebar redesign for Godot 4.6 written in C++ using GDExtension for Windows 11 and 10.
+Install by downloading the latest release, adding it to your project and enabling the plugin. 
+Cloning the addon from the repo will not work without building it.
 
 ---
 
-A modern titlebar redesign for Godot 4.6 written in C++ using GDExtension for Windows 11 and 10.
-
-This is only a prototype, and currently only supports Windows 11 and 10.
-It is being developed mainly for Windows 11, however it has been tested on Windows 10 and works well except
-that it removes the native 1px window border and subwindow titlebars aren't colour matched to the editor's colour.
-
-Install by downloading the latest release, adding it to your project and enabling the plugin. 
-
-Cloning the addon from the repo will not work without building it.
+<img width="2600" height="2600" alt="first" src="https://github.com/user-attachments/assets/7fa30812-6463-41e5-94ab-6a1343cb6ddd" />
 
 ---
 
