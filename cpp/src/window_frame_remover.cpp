@@ -48,6 +48,29 @@ namespace mtb::win
             return 0;
         }
 
+        if (msg == WM_GETMINMAXINFO) {
+            const LRESULT result = g_original_proc
+                ? ::CallWindowProcW(g_original_proc, hWnd, msg, wParam, lParam)
+                : ::DefWindowProcW(hWnd, msg, wParam, lParam);
+
+            HMONITOR monitor = ::MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+            MONITORINFO mi{};
+            mi.cbSize = sizeof(mi);
+
+            if (::GetMonitorInfoW(monitor, &mi)) {
+                const int padding = get_resize_border_px();
+                MINMAXINFO* mmi = reinterpret_cast<MINMAXINFO*>(lParam);
+
+                // ptMaxPosition is relative to the monitor's top-left.
+                mmi->ptMaxPosition.x = (mi.rcWork.left - mi.rcMonitor.left) - padding;
+                mmi->ptMaxPosition.y = (mi.rcWork.top - mi.rcMonitor.top) - padding;
+                mmi->ptMaxSize.x = (mi.rcWork.right - mi.rcWork.left) + padding * 2;
+                mmi->ptMaxSize.y = (mi.rcWork.bottom - mi.rcWork.top) + padding * 2;
+            }
+
+            return result;
+        }
+
         if (msg == WM_NCHITTEST) {
 
             if (!g_original_proc) {
@@ -160,6 +183,11 @@ namespace mtb::win
             0, 0, 0, 0,
             SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED
         );
+
+        if (::IsZoomed(g_hwnd)) {
+            ::ShowWindow(g_hwnd, SW_RESTORE);
+            ::ShowWindow(g_hwnd, SW_MAXIMIZE);
+        }
 
         g_applied = true;
     }
